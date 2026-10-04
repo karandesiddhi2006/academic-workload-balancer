@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | Academic Workload Balancer</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="dashboard-page">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <div class="sidebar-logo">📚</div>
+
+            <div>
+                <h2>Academic</h2>
+                <span>Workload Balancer</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="{{ url_for('dashboard.home') }}" class="nav-item active">
+                <span>🏠</span>
+                Dashboard
+            </a>
+
+            <a href="#" class="nav-item">
+                <span>📖</span>
+                Subjects
+            </a>
+
+            <a href="#" class="nav-item">
+                <span>📝</span>
+                Academic Tasks
+            </a>
+
+            <a href="#" class="nav-item">
+                <span>📅</span>
+                Deadlines
+            </a>
+
+            <a href="#" class="nav-item">
+                <span>📊</span>
+                Workload Analysis
+            </a>
+
+            <a href="#" class="nav-item">
+                <span>📈</span>
+                Reports
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="sidebar-tip">
+                <div class="tip-icon">💡</div>
+
+                <div>
+                    <strong>Stay ahead</strong>
+                    <p>Add your academic tasks to identify busy days early.</p>
+                </div>
+            </div>
+
+            <a href="{{ url_for('auth.logout') }}" class="logout-link">
+                <span>🚪</span>
+                Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+
+        <!-- Top Header -->
+        <header class="dashboard-header">
+
+            <div>
+                <p class="dashboard-greeting">Good to see you 👋</p>
+
+                <h1>
+                    Welcome, {{ user.name }}!
+                </h1>
+
+                <p class="dashboard-subtitle">
+                    Here's an overview of your academic workload.
+                </p>
+            </div>
+
+            <div class="profile-card">
+
+                <div class="profile-avatar">
+                    {{ user.name[0]|upper }}
+                </div>
+
+                <div>
+                    <strong>{{ user.name }}</strong>
+                    <span>{{ user.email }}</span>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- Statistics -->
+        <section class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="stat-icon blue">
+                    📝
+                </div>
+
+                <div>
+                    <span class="stat-label">Pending Tasks</span>
+                    <h2>0</h2>
+                    <p>Tasks remaining</p>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon green">
+                    ✓
+                </div>
+
+                <div>
+                    <span class="stat-label">Completed</span>
+                    <h2>0</h2>
+                    <p>Tasks completed</p>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon orange">
+                    📅
+                </div>
+
+                <div>
+                    <span class="stat-label">Due Today</span>
+                    <h2>0</h2>
+                    <p>Tasks due today</p>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon red">
+                    ⚠️
+                </div>
+
+                <div>
+                    <span class="stat-label">Overdue</span>
+                    <h2>0</h2>
+                    <p>Need attention</p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Main Dashboard Grid -->
+        <section class="dashboard-grid">
+
+            <!-- Workload -->
+            <div class="dashboard-card workload-card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h3>Weekly Workload</h3>
+                        <p>Your academic workload for the upcoming days.</p>
+                    </div>
+
+                    <span class="card-badge">
+                        This Week
+                    </span>
+
+                </div>
+
+                <div class="empty-dashboard">
+
+                    <div class="empty-icon">
+                        📊
+                    </div>
+
+                    <h3>No workload data yet</h3>
+
+                    <p>
+                        Add academic tasks to start analyzing
+                        your workload.
+                    </p>
+
+                    <a href="#" class="primary-button">
+                        + Add Task
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- Upcoming Deadlines -->
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h3>Upcoming Deadlines</h3>
+                        <p>Keep track of what's coming next.</p>
+                    </div>
+
+                    <span class="card-badge purple">
+                        Upcoming
+                    </span>
+
+                </div>
+
+                <div class="empty-dashboard small">
+
+                    <div class="empty-icon">
+                        📅
+                    </div>
+
+                    <h3>No upcoming deadlines</h3>
+
+                    <p>
+                        Your upcoming academic deadlines
+                        will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Bottom Section -->
+        <section class="dashboard-grid bottom-grid">
+
+            <!-- Deadline Clusters -->
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h3>Deadline Cluster Alerts</h3>
+                        <p>Busy periods detected by the system.</p>
+                    </div>
+
+                    <span class="alert-badge">
+                        0 Alerts
+                    </span>
+
+                </div>
+
+                <div class="empty-dashboard small">
+
+                    <div class="empty-icon">
+                        🎯
+                    </div>
+
+                    <h3>No deadline clusters detected</h3>
+
+                    <p>
+                        We'll alert you when multiple academic
+                        tasks fall within a short period.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Quick Actions -->
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h3>Quick Actions</h3>
+                        <p>Manage your academic work.</p>
+                    </div>
+
+                </div>
+
+                <div class="quick-actions">
+
+                    <a href="#" class="quick-action">
+                        <span>➕</span>
+                        <div>
+                            <strong>Add Task</strong>
+                            <p>Create a new academic task</p>
+                        </div>
+                    </a>
+
+                    <a href="#" class="quick-action">
+                        <span>📖</span>
+                        <div>
+                            <strong>Add Subject</strong>
+                            <p>Create a new subject</p>
+                        </div>
+                    </a>
+
+                    <a href="#" class="quick-action">
+                        <span>📊</span>
+                        <div>
+                            <strong>View Analysis</strong>
+                            <p>Analyze your workload</p>
+                        </div>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <p>
+                Academic Workload Balancer
+                <span>•</span>
+                Smart academic planning for students
+            </p>
+        </footer>
+
+    </main>
+
+</div>
+
+</body>
+</html>
