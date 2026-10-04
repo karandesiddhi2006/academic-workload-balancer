@@ -21,4 +21,8 @@ def create_app():
     from app.routes.dashboard import dashboard_bp
     app.register_blueprint(dashboard_bp)
 
+    with app.app_context():
+        from app import models
+        db.create_all()
+
     return app
