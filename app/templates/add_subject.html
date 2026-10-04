@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% if subject %}Edit Subject{% else %}Add Subject{% endif %}
+        | Academic Workload Balancer
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<div class="dashboard-page">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="sidebar-logo">📚</div>
+
+            <div>
+                <h2>Academic</h2>
+                <span>Workload Balancer</span>
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <a href="{{ url_for('dashboard.home') }}"
+               class="nav-item">
+
+                <span>🏠</span>
+                Dashboard
+
+            </a>
+
+
+            <a href="{{ url_for('subjects.list_subjects') }}"
+               class="nav-item active">
+
+                <span>📖</span>
+                Subjects
+
+            </a>
+
+
+            <a href="#" class="nav-item">
+                <span>📝</span>
+                Academic Tasks
+            </a>
+
+            <a href="#" class="nav-item">
+                <span>📅</span>
+                Deadlines
+            </a>
+
+            <a href="#" class="nav-item">
+                <span>📊</span>
+                Workload Analysis
+            </a>
+
+            <a href="#" class="nav-item">
+                <span>📈</span>
+                Reports
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a href="{{ url_for('auth.logout') }}"
+               class="logout-link">
+
+                <span>🚪</span>
+                Logout
+
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- Main -->
+
+    <main class="dashboard-main">
+
+        <div class="form-page-wrapper">
+
+            <div class="form-page-header">
+
+                <a href="{{ url_for('subjects.list_subjects') }}"
+                   class="back-link">
+
+                    ← Back to Subjects
+
+                </a>
+
+                <p class="dashboard-greeting">
+                    Subject Management
+                </p>
+
+                <h1>
+                    {% if subject %}
+                        Edit Subject
+                    {% else %}
+                        Add New Subject
+                    {% endif %}
+                </h1>
+
+                <p class="dashboard-subtitle">
+                    {% if subject %}
+                        Update the details of your subject.
+                    {% else %}
+                        Add a subject to organize your academic tasks.
+                    {% endif %}
+                </p>
+
+            </div>
+
+
+            <div class="subject-form-card">
+
+                <div class="form-card-icon">
+                    📚
+                </div>
+
+                <div class="form-card-heading">
+
+                    <h2>
+                        Subject Details
+                    </h2>
+
+                    <p>
+                        Enter the basic information about your subject.
+                    </p>
+
+                </div>
+
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+
+                    {% if messages %}
+
+                        {% for category, message in messages %}
+
+                            <div class="flash-message
+                                {% if category == 'success' %}
+                                    flash-success
+                                {% else %}
+                                    flash-error
+                                {% endif %}">
+
+                                {{ message }}
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% endif %}
+
+                {% endwith %}
+
+
+                <form method="POST">
+
+                    <div class="form-group">
+
+                        <label for="name">
+                            Subject Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            class="dashboard-input"
+                            placeholder="e.g. Database Management Systems"
+                            value="{{ subject.name if subject else '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="code">
+                            Subject Code
+                            <span class="optional">
+                                Optional
+                            </span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="code"
+                            name="code"
+                            class="dashboard-input"
+                            placeholder="e.g. DBMS-301"
+                            value="{{ subject.code if subject and subject.code else '' }}"
+                        >
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <a href="{{ url_for('subjects.list_subjects') }}"
+                           class="secondary-button">
+
+                            Cancel
+
+                        </a>
+
+
+                        <button type="submit"
+                                class="primary-button">
+
+                            {% if subject %}
+                                ✓ Update Subject
+                            {% else %}
+                                + Add Subject
+                            {% endif %}
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

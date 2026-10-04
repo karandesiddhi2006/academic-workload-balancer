@@ -33,9 +33,9 @@
                 Dashboard
             </a>
 
-            <a href="#" class="nav-item">
+           <a href="{{ url_for('subjects.list_subjects') }}" class="nav-item">
                 <span>📖</span>
-                Subjects
+                 Subjects
             </a>
 
             <a href="#" class="nav-item">
@@ -316,7 +316,7 @@
                         </div>
                     </a>
 
-                    <a href="#" class="quick-action">
+                   <a href="{{ url_for('subjects.add_subject') }}" class="quick-action">
                         <span>📖</span>
                         <div>
                             <strong>Add Subject</strong>
