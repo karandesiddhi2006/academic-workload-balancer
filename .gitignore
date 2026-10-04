@@ -1,7 +1,36 @@
+# Virtual environment
 venv/
+.venv/
+
+# Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Environment variables
 .env
+
+# SQLite database
+*.db
+*.sqlite
+*.sqlite3
+
+# Instance data
 instance/*.db
+instance/*.sqlite
+instance/*.sqlite3
+
+# Test/cache
 .pytest_cache/
-.airflow/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
