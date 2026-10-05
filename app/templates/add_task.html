@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% if task %}Edit Task{% else %}Add Task{% endif %}
+        | Academic Workload Balancer
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<div class="dashboard-page">
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="sidebar-logo">📚</div>
+
+            <div>
+                <h2>Academic</h2>
+                <span>Workload Balancer</span>
+            </div>
+
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="{{ url_for('dashboard.home') }}"
+               class="nav-item">
+                <span>🏠</span>
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('subjects.list_subjects') }}"
+               class="nav-item">
+                <span>📖</span>
+                Subjects
+            </a>
+
+            <a href="{{ url_for('tasks.list_tasks') }}"
+               class="nav-item active">
+                <span>📝</span>
+                Academic Tasks
+            </a>
+
+            <a href="#" class="nav-item">
+                <span>📅</span>
+                Deadlines
+            </a>
+
+            <a href="#" class="nav-item">
+                <span>📊</span>
+                Workload Analysis
+            </a>
+
+            <a href="#" class="nav-item">
+                <span>📈</span>
+                Reports
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <a href="{{ url_for('auth.logout') }}"
+               class="logout-link">
+                <span>🚪</span>
+                Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <main class="dashboard-main">
+
+        <div class="form-page-wrapper">
+
+            <div class="form-page-header">
+
+                <a href="{{ url_for('tasks.list_tasks') }}"
+                   class="back-link">
+                    ← Back to Tasks
+                </a>
+
+                <p class="dashboard-greeting">
+                    Task Management
+                </p>
+
+                <h1>
+                    {% if task %}
+                        Edit Academic Task
+                    {% else %}
+                        Add Academic Task
+                    {% endif %}
+                </h1>
+
+                <p class="dashboard-subtitle">
+                    Add the details needed to track and analyze
+                    this academic task.
+                </p>
+
+            </div>
+
+
+            <div class="subject-form-card">
+
+                <div class="form-card-icon">
+                    📝
+                </div>
+
+                <div class="form-card-heading">
+
+                    <h2>Task Details</h2>
+
+                    <p>
+                        Required fields are marked automatically.
+                    </p>
+
+                </div>
+
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+
+                    {% if messages %}
+
+                        {% for category, message in messages %}
+
+                            <div class="flash-message
+                                {% if category == 'success' %}
+                                    flash-success
+                                {% else %}
+                                    flash-error
+                                {% endif %}">
+
+                                {{ message }}
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% endif %}
+
+                {% endwith %}
+
+
+                <form method="POST">
+
+                    <div class="form-group">
+
+                        <label for="title">
+                            Task Title
+                        </label>
+
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            class="dashboard-input"
+                            placeholder="e.g. DBMS Assignment 1"
+                            value="{{ task.title if task else '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="description">
+                            Description
+                            <span class="optional">Optional</span>
+                        </label>
+
+                        <textarea
+                            id="description"
+                            name="description"
+                            class="dashboard-input dashboard-textarea"
+                            placeholder="Add a short description..."
+                        >{{ task.description if task and task.description else '' }}</textarea>
+
+                    </div>
+
+
+                    <div class="task-form-grid">
+
+                        <div class="form-group">
+
+                            <label for="subject_id">
+                                Subject
+                            </label>
+
+                            <select
+                                id="subject_id"
+                                name="subject_id"
+                                class="dashboard-input"
+                                required
+                            >
+
+                                <option value="">
+                                    Select subject
+                                </option>
+
+                                {% for subject in subjects %}
+
+                                    <option
+                                        value="{{ subject.id }}"
+                                        {% if task and task.subject_id == subject.id %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ subject.name }}
+                                        {% if subject.code %}
+                                            ({{ subject.code }})
+                                        {% endif %}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="task_type">
+                                Task Type
+                            </label>
+
+                            <select
+                                id="task_type"
+                                name="task_type"
+                                class="dashboard-input"
+                                required
+                            >
+
+                                <option value="">
+                                    Select task type
+                                </option>
+
+                                {% for type in [
+                                    "Assignment",
+                                    "Practical",
+                                    "Test",
+                                    "Presentation",
+                                    "Project"
+                                ] %}
+
+                                    <option
+                                        value="{{ type }}"
+                                        {% if task and task.task_type == type %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ type }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="task-form-grid">
+
+                        <div class="form-group">
+
+                            <label for="priority">
+                                Priority
+                            </label>
+
+                            <select
+                                id="priority"
+                                name="priority"
+                                class="dashboard-input"
+                                required
+                            >
+
+                                <option value="">
+                                    Select priority
+                                </option>
+
+                                <option
+                                    value="LOW"
+                                    {% if task and task.priority == "LOW" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    LOW
+                                </option>
+
+                                <option
+                                    value="MEDIUM"
+                                    {% if task and task.priority == "MEDIUM" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    MEDIUM
+                                </option>
+
+                                <option
+                                    value="HIGH"
+                                    {% if task and task.priority == "HIGH" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    HIGH
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="estimated_effort">
+                                Estimated Effort
+                                <span class="optional">Hours</span>
+                            </label>
+
+                            <input
+                                type="number"
+                                id="estimated_effort"
+                                name="estimated_effort"
+                                class="dashboard-input"
+                                placeholder="e.g. 3"
+                                min="0"
+                                step="0.5"
+                                value="{{ task.estimated_effort if task and task.estimated_effort is not none else '' }}"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="task-form-grid">
+
+                        <div class="form-group">
+
+                            <label for="due_date">
+                                Due Date
+                            </label>
+
+                            <input
+                                type="date"
+                                id="due_date"
+                                name="due_date"
+                                class="dashboard-input"
+                                value="{{ task.due_date.strftime('%Y-%m-%d') if task else '' }}"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="due_time">
+                                Due Time
+                                <span class="optional">Optional</span>
+                            </label>
+
+                            <input
+                                type="time"
+                                id="due_time"
+                                name="due_time"
+                                class="dashboard-input"
+                                value="{{ task.due_time.strftime('%H:%M') if task and task.due_time else '' }}"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <a href="{{ url_for('tasks.list_tasks') }}"
+                           class="secondary-button">
+                            Cancel
+                        </a>
+
+                        <button type="submit"
+                                class="primary-button">
+
+                            {% if task %}
+                                ✓ Update Task
+                            {% else %}
+                                + Add Task
+                            {% endif %}
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>
