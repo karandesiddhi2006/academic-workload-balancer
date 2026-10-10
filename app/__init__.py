@@ -22,12 +22,16 @@ def create_app():
     from app.routes.auth import auth_bp
     from app.routes.subjects import subjects_bp
     from app.routes.tasks import tasks_bp
+    from app.routes.deadlines import deadlines_bp
+    from app.routes.workload import workload_bp
 
 
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(subjects_bp)
     app.register_blueprint(tasks_bp)
+    app.register_blueprint(deadlines_bp)
+    app.register_blueprint(workload_bp)
 
     with app.app_context():
         from app import models

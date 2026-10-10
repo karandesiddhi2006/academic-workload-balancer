@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+
+{% block title %}Workload Analysis - Academic Workload Balancer{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Workload Analysis</h1>
+        <p>Analyze your academic workload and identify high-workload days.</p>
+    </div>
+</div>
+
+
+<!-- ==============================
+     WORKLOAD SUMMARY
+     ============================== -->
+
+<div class="section-heading">
+    <h2>Daily Workload</h2>
+</div>
+
+
+{% if daily_workload %}
+
+<div class="workload-grid">
+
+    {% for date, data in daily_workload.items() %}
+
+    <div class="workload-card
+        {% if data.workload_level == 'HIGH' %}
+            workload-high
+        {% elif data.workload_level == 'MEDIUM' %}
+            workload-medium
+        {% else %}
+            workload-low
+        {% endif %}
+    ">
+
+        <div class="workload-card-header">
+
+            <div>
+                <h3>{{ date.strftime('%d %b %Y') }}</h3>
+
+                <span class="workload-day">
+                    {{ date.strftime('%A') }}
+                </span>
+            </div>
+
+            <span class="workload-badge">
+                {{ data.workload_level }}
+            </span>
+
+        </div>
+
+
+        <div class="workload-points">
+
+            <strong>
+                {{ data.workload_points }}
+            </strong>
+
+            <span>
+                workload points
+            </span>
+
+        </div>
+
+
+        <div class="workload-info">
+
+            <span>
+                📝 {{ data.task_count }} task{% if data.task_count != 1 %}s{% endif %}
+            </span>
+
+        </div>
+
+
+        {% if data.tasks %}
+
+        <div class="workload-task-list">
+
+            {% for task in data.tasks %}
+
+            <div class="workload-task">
+
+                <div>
+
+                    <strong>
+                        {{ task.title }}
+                    </strong>
+
+                    <small>
+                        {{ task.task_type }} · {{ task.priority }}
+                    </small>
+
+                </div>
+
+                <span>
+                    {% if task.task_type == "Assignment" %}
+                        {{ 2 * (1 if task.priority == "LOW" else 1.5 if task.priority == "MEDIUM" else 2) }}
+                    {% elif task.task_type == "Practical" %}
+                        {{ 3 * (1 if task.priority == "LOW" else 1.5 if task.priority == "MEDIUM" else 2) }}
+                    {% elif task.task_type == "Test" %}
+                        {{ 3 * (1 if task.priority == "LOW" else 1.5 if task.priority == "MEDIUM" else 2) }}
+                    {% elif task.task_type == "Presentation" %}
+                        {{ 3 * (1 if task.priority == "LOW" else 1.5 if task.priority == "MEDIUM" else 2) }}
+                    {% elif task.task_type == "Project" %}
+                        {{ 4 * (1 if task.priority == "LOW" else 1.5 if task.priority == "MEDIUM" else 2) }}
+                    {% endif %}
+                    pts
+                </span>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% else %}
+
+<div class="empty-state">
+
+    <div class="empty-icon">
+        📊
+    </div>
+
+    <h3>No workload data available</h3>
+
+    <p>
+        Add some pending academic tasks to see your workload analysis.
+    </p>
+
+    <a
+        href="{{ url_for('tasks.add_task') }}"
+        class="btn btn-primary"
+    >
+        + Add Academic Task
+    </a>
+
+</div>
+
+{% endif %}
+
+
+<!-- ==============================
+     WEEKLY WORKLOAD
+     ============================== -->
+
+<div class="section-heading workload-section-heading">
+
+    <div>
+        <h2>This Week's Workload</h2>
+
+        <p>
+            Workload distribution from Monday to Sunday.
+        </p>
+    </div>
+
+</div>
+
+
+<div class="weekly-workload-grid">
+
+    {% for day in weekly_workload %}
+
+    <div class="weekly-workload-card">
+
+        <span class="weekly-day">
+            {{ day.date.strftime('%a') }}
+        </span>
+
+        <strong>
+            {{ day.date.strftime('%d') }}
+        </strong>
+
+        <div class="weekly-workload-points">
+            {{ day.workload_points }}
+        </div>
+
+        <small>
+            {{ day.task_count }}
+            task{% if day.task_count != 1 %}s{% endif %}
+        </small>
+
+        <span class="
+            weekly-level
+            {% if day.workload_level == 'HIGH' %}
+                weekly-high
+            {% elif day.workload_level == 'MEDIUM' %}
+                weekly-medium
+            {% else %}
+                weekly-low
+            {% endif %}
+        ">
+            {{ day.workload_level }}
+        </span>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<!-- ==============================
+     HIGH WORKLOAD DAYS
+     ============================== -->
+
+<div class="section-heading workload-section-heading">
+
+    <div>
+        <h2>High-Workload Days</h2>
+
+        <p>
+            Days where your workload reaches 8 or more points.
+        </p>
+    </div>
+
+</div>
+
+
+{% if high_workload_days %}
+
+<div class="high-workload-list">
+
+    {% for day in high_workload_days %}
+
+    <div class="high-workload-card">
+
+        <div class="high-workload-date">
+
+            <strong>
+                {{ day.date.strftime('%d') }}
+            </strong>
+
+            <span>
+                {{ day.date.strftime('%b') }}
+            </span>
+
+        </div>
+
+
+        <div class="high-workload-details">
+
+            <h3>
+                {{ day.date.strftime('%A, %d %B %Y') }}
+            </h3>
+
+            <p>
+                {{ day.task_count }} academic task{% if day.task_count != 1 %}s{% endif %}
+                scheduled
+            </p>
+
+        </div>
+
+
+        <div class="high-workload-score">
+
+            <strong>
+                {{ day.workload_points }}
+            </strong>
+
+            <span>
+                points
+            </span>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% else %}
+
+<div class="empty-state compact">
+
+    <div class="empty-icon">
+        ✅
+    </div>
+
+    <h3>No high-workload days</h3>
+
+    <p>
+        Your current workload is within the LOW or MEDIUM range.
+    </p>
+
+</div>
+
+{% endif %}
+
+<section class="workload-section">
+    <div class="section-heading">
+        <div>
+            <h2>Deadline Cluster Alerts</h2>
+            <p>Tasks with deadlines close together need extra attention.</p>
+        </div>
+    </div>
+
+    {% if deadline_clusters %}
+        <div class="cluster-grid">
+            {% for cluster in deadline_clusters %}
+                <div class="cluster-card">
+                    <div class="cluster-card-header">
+                        <h3>Deadline Cluster {{ loop.index }}</h3>
+                        <span class="workload-badge high">Attention Needed</span>
+                    </div>
+
+                    <div class="cluster-stats">
+                        <div>
+                            <span class="stat-label">Tasks</span>
+                            <strong>{{ cluster.task_count }}</strong>
+                        </div>
+                        <div>
+                            <span class="stat-label">Workload Points</span>
+                            <strong>{{ "%.1f"|format(cluster.total_workload) }}</strong>
+                        </div>
+                    </div>
+
+                    <p class="cluster-dates">
+                        {{ cluster.start_date.strftime('%d %b %Y') }}
+                        &mdash;
+                        {{ cluster.end_date.strftime('%d %b %Y') }}
+                    </p>
+
+                    <h4>Tasks in this cluster</h4>
+                    <ul class="cluster-task-list">
+                        {% for task in cluster.tasks %}
+                            <li>
+                                <strong>{{ task.title }}</strong>
+                                <span>{{ task.task_type }} · {{ task.priority }}</span>
+                                <small>
+                                    Due {{ task.due_date.strftime('%d %b %Y') }}
+                                </small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>No deadline clusters detected</h3>
+            <p>
+                You currently have no groups of two or more pending tasks
+                within a two-day window. Keep tracking your deadlines!
+            </p>
+        </div>
+    {% endif %}
+</section>
+
+{% endblock %}

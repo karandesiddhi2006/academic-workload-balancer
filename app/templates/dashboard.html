@@ -1,356 +1,602 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base.html" %}
 
-    <title>Dashboard | Academic Workload Balancer</title>
+{% block title %}Dashboard | Academic Workload Balancer{% endblock %}
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-
-<body>
+{% block content %}
 
 <div class="dashboard-page">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div>
+            <h1>Welcome back, {{ user.name }}! 👋</h1>
+            <p>Here's your academic workload overview.</p>
+        </div>
 
-        <div class="sidebar-brand">
-            <div class="sidebar-logo">📚</div>
+        <a href="{{ url_for('tasks.add_task') }}" class="btn-primary">
+            + Add Task
+        </a>
+    </div>
+
+
+    <!-- STATISTICS -->
+    <div class="stats-grid">
+
+        <!-- Pending -->
+        <div class="stat-card">
+            <div class="stat-card-icon">📋</div>
 
             <div>
-                <h2>Academic</h2>
-                <span>Workload Balancer</span>
+                <p class="stat-label">Pending Tasks</p>
+                <h2 class="stat-number">
+                    {{ pending_count }}
+                </h2>
             </div>
         </div>
 
-        <nav class="sidebar-nav">
 
-            <a href="{{ url_for('dashboard.home') }}" class="nav-item active">
-                <span>🏠</span>
-                Dashboard
-            </a>
+        <!-- Completed -->
+        <div class="stat-card">
+            <div class="stat-card-icon">✅</div>
 
-           <a href="{{ url_for('subjects.list_subjects') }}" class="nav-item">
-                <span>📖</span>
-                 Subjects
-            </a>
+            <div>
+                <p class="stat-label">Completed</p>
+                <h2 class="stat-number">
+                    {{ completed_count }}
+                </h2>
+            </div>
+        </div>
 
-          <a href="{{ url_for('tasks.list_tasks') }}" class="nav-item">
-    <span>📝</span>
-    Academic Tasks
-</a>
 
-            <a href="#" class="nav-item">
-                <span>📅</span>
-                Deadlines
-            </a>
+        <!-- Due Today -->
+        <div class="stat-card">
+            <div class="stat-card-icon">🕐</div>
 
-            <a href="#" class="nav-item">
-                <span>📊</span>
-                Workload Analysis
-            </a>
+            <div>
+                <p class="stat-label">Due Today</p>
+                <h2 class="stat-number">
+                    {{ due_today_count }}
+                </h2>
+            </div>
+        </div>
 
-            <a href="#" class="nav-item">
-                <span>📈</span>
-                Reports
-            </a>
 
-        </nav>
+        <!-- Overdue -->
+        <div class="stat-card">
+            <div class="stat-card-icon">⚠️</div>
 
-        <div class="sidebar-bottom">
+            <div>
+                <p class="stat-label">Overdue</p>
+                <h2 class="stat-number">
+                    {{ overdue_count }}
+                </h2>
+            </div>
+        </div>
 
-            <div class="sidebar-tip">
-                <div class="tip-icon">💡</div>
+    </div>
+    <!-- ==============================
+     WORKLOAD SUMMARY
+     ============================== -->
 
-                <div>
-                    <strong>Stay ahead</strong>
-                    <p>Add your academic tasks to identify busy days early.</p>
+<div class="dashboard-section">
+
+    <div class="section-heading">
+
+        <div>
+            <h2>Today's Workload</h2>
+
+            <p>
+                Your academic workload for today
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('workload.workload_dashboard') }}"
+            class="view-all-link"
+        >
+            View Analysis →
+        </a>
+
+    </div>
+
+
+    <div class="workload-summary-card">
+
+        <div class="workload-summary-main">
+
+            <div class="workload-summary-icon">
+                📊
+            </div>
+
+            <div>
+
+                <span class="workload-summary-label">
+                    Workload Points
+                </span>
+
+                <strong class="workload-summary-points">
+                    {{ today_workload.workload_points }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="workload-summary-level
+            {% if today_workload.workload_level == 'HIGH' %}
+                level-high
+            {% elif today_workload.workload_level == 'MEDIUM' %}
+                level-medium
+            {% else %}
+                level-low
+            {% endif %}
+        ">
+
+            {{ today_workload.workload_level }}
+
+        </div>
+
+    </div>
+
+
+    <div class="workload-summary-meta">
+
+        <span>
+            📝
+            {{ today_workload.task_count }}
+            task{% if today_workload.task_count != 1 %}s{% endif %}
+            due today
+        </span>
+
+        {% if today_workload.workload_level == "HIGH" %}
+
+            <span class="workload-warning">
+                ⚠️ High workload — plan your time carefully.
+            </span>
+
+        {% elif today_workload.workload_level == "MEDIUM" %}
+
+            <span>
+                Keep track of your upcoming deadlines.
+            </span>
+
+        {% else %}
+
+            <span>
+                Your workload is currently manageable.
+            </span>
+
+        {% endif %}
+
+    </div>
+
+</div>
+<!-- ==============================
+     HIGH WORKLOAD DAYS
+     ============================== -->
+
+<div class="dashboard-section">
+
+    <div class="section-heading">
+
+        <div>
+            <h2>High-Workload Days</h2>
+
+            <p>
+                Days requiring extra attention
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('workload.workload_dashboard') }}"
+            class="view-all-link"
+        >
+            View All →
+        </a>
+
+    </div>
+
+
+    {% if high_workload_days %}
+
+        <div class="dashboard-high-workload-list">
+
+            {% for day in high_workload_days[:3] %}
+
+                <div class="dashboard-high-workload-item">
+
+                    <div class="dashboard-date">
+
+                        <strong>
+                            {{ day.date.strftime('%d') }}
+                        </strong>
+
+                        <span>
+                            {{ day.date.strftime('%b') }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="dashboard-high-workload-info">
+
+                        <strong>
+                            {{ day.date.strftime('%A, %d %B') }}
+                        </strong>
+
+                        <span>
+                            {{ day.task_count }}
+                            task{% if day.task_count != 1 %}s{% endif %}
+                        </span>
+
+                    </div>
+
+
+                    <div class="dashboard-workload-points">
+
+                        <strong>
+                            {{ day.workload_points }}
+                        </strong>
+
+                        <span>
+                            points
+                        </span>
+
+                    </div>
+
                 </div>
-            </div>
 
-            <a href="{{ url_for('auth.logout') }}" class="logout-link">
-                <span>🚪</span>
-                Logout
-            </a>
+            {% endfor %}
 
         </div>
 
-    </aside>
+    {% else %}
 
+        <div class="dashboard-no-workload">
 
-    <!-- Main Content -->
-    <main class="dashboard-main">
-
-        <!-- Top Header -->
-        <header class="dashboard-header">
+            <span>✅</span>
 
             <div>
-                <p class="dashboard-greeting">Good to see you 👋</p>
 
-                <h1>
-                    Welcome, {{ user.name }}!
-                </h1>
+                <strong>
+                    No high-workload days
+                </strong>
 
-                <p class="dashboard-subtitle">
-                    Here's an overview of your academic workload.
+                <p>
+                    Your current workload is within a manageable range.
+                </p>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+    <!-- DEADLINE CLUSTER ALERTS -->
+    <div class="dashboard-section">
+        <div class="section-heading">
+            <div>
+                <h2>⚠️ Deadline Cluster Alerts</h2>
+                <p>Pending tasks with deadlines close together</p>
+            </div>
+
+            <a
+                href="{{ url_for('workload.workload_dashboard') }}"
+                class="view-all-link"
+            >
+                View Analysis →
+            </a>
+        </div>
+
+        {% if deadline_clusters %}
+
+            <div class="cluster-grid">
+                {% for cluster in deadline_clusters %}
+
+                    <div class="cluster-card">
+
+                        <div class="cluster-card-header">
+                            <h3>Cluster {{ loop.index }}</h3>
+                            <span class="workload-badge high">
+                                Attention Needed
+                            </span>
+                        </div>
+
+                        <div class="cluster-stats">
+                            <div>
+                                <span class="stat-label">Pending Tasks</span>
+                                <strong>{{ cluster.task_count }}</strong>
+                            </div>
+
+                            <div>
+                                <span class="stat-label">Workload Points</span>
+                                <strong>
+                                    {{ "%.1f"|format(cluster.total_workload) }}
+                                </strong>
+                            </div>
+                        </div>
+
+                        <p class="cluster-dates">
+                            {{ cluster.start_date.strftime('%d %b %Y') }}
+                            &mdash;
+                            {{ cluster.end_date.strftime('%d %b %Y') }}
+                        </p>
+
+                        <h4>Tasks in this cluster</h4>
+
+                        <ul class="cluster-task-list">
+                            {% for task in cluster.tasks %}
+                                <li>
+                                    <strong>{{ task.title }}</strong>
+
+                                    <span>
+                                        {{ task.task_type }} · {{ task.priority }}
+                                    </span>
+
+                                    <small>
+                                        Due {{ task.due_date.strftime('%d %b %Y') }}
+                                    </small>
+                                </li>
+                            {% endfor %}
+                        </ul>
+
+                    </div>
+
+                {% endfor %}
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+                <h3>No deadline clusters detected</h3>
+                <p>
+                    You currently have no groups of two or more pending
+                    tasks within a two-day window.
                 </p>
             </div>
 
-            <div class="profile-card">
+        {% endif %}
+    </div>
 
-                <div class="profile-avatar">
-                    {{ user.name[0]|upper }}
-                </div>
+    <!-- MAIN DASHBOARD GRID -->
+    <div class="dashboard-grid">
 
+
+        <!-- UPCOMING DEADLINES -->
+        <div class="dashboard-card">
+
+            <div class="card-header">
                 <div>
-                    <strong>{{ user.name }}</strong>
-                    <span>{{ user.email }}</span>
+                    <h2>Upcoming Deadlines</h2>
+                    <p>Your next pending academic tasks</p>
                 </div>
 
-            </div>
-
-        </header>
-
-
-        <!-- Statistics -->
-        <section class="stats-grid">
-
-            <div class="stat-card">
-
-                <div class="stat-icon blue">
-                    📝
-                </div>
-
-                <div>
-                    <span class="stat-label">Pending Tasks</span>
-                    <h2>0</h2>
-                    <p>Tasks remaining</p>
-                </div>
-
+                <a
+                    href="{{ url_for('deadlines.deadline_dashboard') }}"
+                    class="view-all-link"
+                >
+                    View All →
+                </a>
             </div>
 
 
-            <div class="stat-card">
+            {% if upcoming_tasks %}
 
-                <div class="stat-icon green">
-                    ✓
-                </div>
+                <div class="dashboard-task-list">
 
-                <div>
-                    <span class="stat-label">Completed</span>
-                    <h2>0</h2>
-                    <p>Tasks completed</p>
-                </div>
+                    {% for task in upcoming_tasks %}
 
-            </div>
+                    <div class="dashboard-task-item">
 
+                        <div class="task-info">
 
-            <div class="stat-card">
+                            <h3>{{ task.title }}</h3>
 
-                <div class="stat-icon orange">
-                    📅
-                </div>
+                            <p>
+                                {{ task.subject.name }}
 
-                <div>
-                    <span class="stat-label">Due Today</span>
-                    <h2>0</h2>
-                    <p>Tasks due today</p>
-                </div>
+                                {% if task.subject.code %}
+                                    · {{ task.subject.code }}
+                                {% endif %}
+                            </p>
 
-            </div>
+                        </div>
 
 
-            <div class="stat-card">
+                        <div class="task-deadline">
 
-                <div class="stat-icon red">
-                    ⚠️
-                </div>
+                            <span class="task-date">
+                                {{ task.due_date.strftime('%d %b') }}
+                            </span>
 
-                <div>
-                    <span class="stat-label">Overdue</span>
-                    <h2>0</h2>
-                    <p>Need attention</p>
-                </div>
+                            {% if task.due_time %}
+                                <span class="task-time">
+                                    {{ task.due_time.strftime('%I:%M %p') }}
+                                </span>
+                            {% endif %}
 
-            </div>
+                        </div>
 
-        </section>
-
-
-        <!-- Main Dashboard Grid -->
-        <section class="dashboard-grid">
-
-            <!-- Workload -->
-            <div class="dashboard-card workload-card">
-
-                <div class="card-header">
-
-                    <div>
-                        <h3>Weekly Workload</h3>
-                        <p>Your academic workload for the upcoming days.</p>
                     </div>
 
-                    <span class="card-badge">
-                        This Week
-                    </span>
+                    {% endfor %}
 
                 </div>
 
-                <div class="empty-dashboard">
+            {% else %}
 
-                    <div class="empty-icon">
-                        📊
-                    </div>
-
-                    <h3>No workload data yet</h3>
-
-                    <p>
-                        Add academic tasks to start analyzing
-                        your workload.
-                    </p>
-
-                    <a href="#" class="primary-button">
-                        + Add Task
-                    </a>
-
-                </div>
-
-            </div>
-
-
-            <!-- Upcoming Deadlines -->
-            <div class="dashboard-card">
-
-                <div class="card-header">
-
-                    <div>
-                        <h3>Upcoming Deadlines</h3>
-                        <p>Keep track of what's coming next.</p>
-                    </div>
-
-                    <span class="card-badge purple">
-                        Upcoming
-                    </span>
-
-                </div>
-
-                <div class="empty-dashboard small">
-
-                    <div class="empty-icon">
-                        📅
-                    </div>
+                <div class="dashboard-empty">
+                    <div class="empty-icon">📅</div>
 
                     <h3>No upcoming deadlines</h3>
 
                     <p>
-                        Your upcoming academic deadlines
-                        will appear here.
+                        You don't have any pending upcoming tasks.
                     </p>
 
+                    <a
+                        href="{{ url_for('tasks.add_task') }}"
+                        class="btn-primary"
+                    >
+                        Add Your First Task
+                    </a>
                 </div>
+
+            {% endif %}
+
+        </div>
+
+
+
+        <!-- OVERDUE ALERTS -->
+        <div class="dashboard-card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Deadline Alerts</h2>
+                    <p>Tasks that need your attention</p>
+                </div>
+
+                <a
+                    href="{{ url_for('deadlines.deadline_dashboard') }}"
+                    class="view-all-link"
+                >
+                    Manage →
+                </a>
 
             </div>
 
-        </section>
+
+            {% if overdue_tasks %}
+
+                <div class="dashboard-task-list">
+
+                    {% for task in overdue_tasks[:5] %}
+
+                    <div class="dashboard-task-item overdue-dashboard-item">
+
+                        <div class="task-info">
+
+                            <h3>{{ task.title }}</h3>
+
+                            <p>
+                                {{ task.subject.name }}
+
+                                {% if task.subject.code %}
+                                    · {{ task.subject.code }}
+                                {% endif %}
+                            </p>
+
+                        </div>
 
 
-        <!-- Bottom Section -->
-        <section class="dashboard-grid bottom-grid">
+                        <div class="overdue-label">
+                            OVERDUE
+                        </div>
 
-            <!-- Deadline Clusters -->
-            <div class="dashboard-card">
-
-                <div class="card-header">
-
-                    <div>
-                        <h3>Deadline Cluster Alerts</h3>
-                        <p>Busy periods detected by the system.</p>
                     </div>
 
-                    <span class="alert-badge">
-                        0 Alerts
-                    </span>
+                    {% endfor %}
 
                 </div>
 
-                <div class="empty-dashboard small">
+            {% else %}
 
-                    <div class="empty-icon">
-                        🎯
-                    </div>
+                <div class="dashboard-empty">
 
-                    <h3>No deadline clusters detected</h3>
+                    <div class="empty-icon">✓</div>
+
+                    <h3>No overdue tasks</h3>
 
                     <p>
-                        We'll alert you when multiple academic
-                        tasks fall within a short period.
+                        Great! You're all caught up.
                     </p>
 
                 </div>
 
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+
+    <!-- QUICK ACTIONS -->
+    <div class="dashboard-card quick-actions-card">
+
+        <div class="card-header">
+
+            <div>
+                <h2>Quick Actions</h2>
+                <p>Manage your academic work quickly.</p>
             </div>
 
+        </div>
 
-            <!-- Quick Actions -->
-            <div class="dashboard-card">
 
-                <div class="card-header">
+        <div class="quick-actions-grid">
 
-                    <div>
-                        <h3>Quick Actions</h3>
-                        <p>Manage your academic work.</p>
-                    </div>
+            <a
+                href="{{ url_for('tasks.add_task') }}"
+                class="quick-action"
+            >
+                <span class="quick-action-icon">➕</span>
 
+                <div>
+                    <strong>Add Academic Task</strong>
+                    <small>Create a new assignment, practical, test, etc.</small>
                 </div>
+            </a>
 
-                <div class="quick-actions">
 
-                    <a href="{{ url_for('tasks.add_task') }}" class="quick-action">
-                         <span>➕</span>
-                         <div>
-                              <strong>Add Task</strong>
-                                 <p>Create a new academic task</p>
-                         </div>
-                    </a>
+            <a
+                href="{{ url_for('subjects.list_subjects') }}"
+                class="quick-action"
+            >
+                <span class="quick-action-icon">📚</span>
 
-                   <a href="{{ url_for('subjects.add_subject') }}" class="quick-action">
-                        <span>📖</span>
-                        <div>
-                            <strong>Add Subject</strong>
-                            <p>Create a new subject</p>
-                        </div>
-                    </a>
-
-                    <a href="#" class="quick-action">
-                        <span>📊</span>
-                        <div>
-                            <strong>View Analysis</strong>
-                            <p>Analyze your workload</p>
-                        </div>
-                    </a>
-
+                <div>
+                    <strong>Manage Subjects</strong>
+                    <small>View and manage your subjects.</small>
                 </div>
-
-            </div>
-
-        </section>
+            </a>
 
 
-        <!-- Footer -->
-        <footer class="dashboard-footer">
-            <p>
-                Academic Workload Balancer
-                <span>•</span>
-                Smart academic planning for students
-            </p>
-        </footer>
+            <a
+                href="{{ url_for('tasks.list_tasks') }}"
+                class="quick-action"
+            >
+                <span class="quick-action-icon">📝</span>
 
-    </main>
+                <div>
+                    <strong>View All Tasks</strong>
+                    <small>Review and manage all academic tasks.</small>
+                </div>
+            </a>
+
+
+            <a
+                href="{{ url_for('deadlines.deadline_dashboard') }}"
+                class="quick-action"
+            >
+                <span class="quick-action-icon">📅</span>
+
+                <div>
+                    <strong>Deadline Management</strong>
+                    <small>Check upcoming and overdue deadlines.</small>
+                </div>
+            </a>
+
+        </div>
+
+    </div>
 
 </div>
 
-</body>
-</html>
+{% endblock %}

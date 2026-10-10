@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Deadlines | Academic Workload Balancer{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Deadline Management</h1>
+        <p>Track upcoming, today's, and overdue academic tasks.</p>
+    </div>
+
+    <a href="{{ url_for('tasks.add_task') }}" class="btn-primary">
+        + Add Task
+    </a>
+</div>
+
+
+<!-- OVERDUE -->
+<section class="deadline-section">
+    <div class="section-heading">
+        <div>
+            <h2>🔴 Overdue</h2>
+            <p>Tasks that have passed their deadline.</p>
+        </div>
+
+        <span class="deadline-count overdue-count">
+            {{ overdue_tasks|length }}
+        </span>
+    </div>
+
+    {% if overdue_tasks %}
+        <div class="deadline-list">
+
+            {% for task in overdue_tasks %}
+            <div class="deadline-card overdue-card">
+
+                <div class="deadline-main">
+                    <div class="task-title-row">
+                        <h3>{{ task.title }}</h3>
+
+                        <span class="priority-badge {{ task.priority|lower }}">
+                            {{ task.priority }}
+                        </span>
+                    </div>
+
+                    <p class="task-subject">
+                        {{ task.subject.name }}
+                        {% if task.subject.code %}
+                            · {{ task.subject.code }}
+                        {% endif %}
+                    </p>
+
+                    <div class="deadline-meta">
+                        <span>📚 {{ task.task_type }}</span>
+
+                        <span>
+                            📅 {{ task.due_date.strftime('%d %b %Y') }}
+                        </span>
+
+                        {% if task.due_time %}
+                            <span>
+                                🕐 {{ task.due_time.strftime('%I:%M %p') }}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="deadline-actions">
+                    <a
+                        href="{{ url_for('tasks.edit_task', task_id=task.id) }}"
+                        class="btn-secondary"
+                    >
+                        Edit
+                    </a>
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('tasks.complete_task', task_id=task.id) }}"
+                    >
+                        <button type="submit" class="btn-success">
+                            Complete
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+        <div class="empty-deadline">
+            <div class="empty-icon">✓</div>
+            <h3>No overdue tasks</h3>
+            <p>You're all caught up. Great job!</p>
+        </div>
+    {% endif %}
+</section>
+
+
+<!-- DUE TODAY -->
+<section class="deadline-section">
+    <div class="section-heading">
+        <div>
+            <h2>🟠 Due Today</h2>
+            <p>Tasks that need your attention today.</p>
+        </div>
+
+        <span class="deadline-count today-count">
+            {{ due_today_tasks|length }}
+        </span>
+    </div>
+
+    {% if due_today_tasks %}
+        <div class="deadline-list">
+
+            {% for task in due_today_tasks %}
+            <div class="deadline-card today-card">
+
+                <div class="deadline-main">
+
+                    <div class="task-title-row">
+                        <h3>{{ task.title }}</h3>
+
+                        <span class="priority-badge {{ task.priority|lower }}">
+                            {{ task.priority }}
+                        </span>
+                    </div>
+
+                    <p class="task-subject">
+                        {{ task.subject.name }}
+                        {% if task.subject.code %}
+                            · {{ task.subject.code }}
+                        {% endif %}
+                    </p>
+
+                    <div class="deadline-meta">
+                        <span>📚 {{ task.task_type }}</span>
+
+                        <span>
+                            📅 Today
+                        </span>
+
+                        {% if task.due_time %}
+                            <span>
+                                🕐 {{ task.due_time.strftime('%I:%M %p') }}
+                            </span>
+                        {% else %}
+                            <span>
+                                🕐 No specific time
+                            </span>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <div class="deadline-actions">
+
+                    <a
+                        href="{{ url_for('tasks.edit_task', task_id=task.id) }}"
+                        class="btn-secondary"
+                    >
+                        Edit
+                    </a>
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('tasks.complete_task', task_id=task.id) }}"
+                    >
+                        <button type="submit" class="btn-success">
+                            Complete
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+        <div class="empty-deadline">
+            <div class="empty-icon">✓</div>
+            <h3>Nothing due today</h3>
+            <p>You have no pending tasks due today.</p>
+        </div>
+    {% endif %}
+</section>
+
+
+<!-- UPCOMING -->
+<section class="deadline-section">
+    <div class="section-heading">
+        <div>
+            <h2>🔵 Upcoming Deadlines</h2>
+            <p>Pending tasks scheduled for the coming days.</p>
+        </div>
+
+        <span class="deadline-count upcoming-count">
+            {{ upcoming_tasks|length }}
+        </span>
+    </div>
+
+    {% if upcoming_tasks %}
+        <div class="deadline-list">
+
+            {% for task in upcoming_tasks %}
+            <div class="deadline-card upcoming-card">
+
+                <div class="deadline-main">
+
+                    <div class="task-title-row">
+                        <h3>{{ task.title }}</h3>
+
+                        <span class="priority-badge {{ task.priority|lower }}">
+                            {{ task.priority }}
+                        </span>
+                    </div>
+
+                    <p class="task-subject">
+                        {{ task.subject.name }}
+                        {% if task.subject.code %}
+                            · {{ task.subject.code }}
+                        {% endif %}
+                    </p>
+
+                    <div class="deadline-meta">
+                        <span>📚 {{ task.task_type }}</span>
+
+                        <span>
+                            📅 {{ task.due_date.strftime('%d %b %Y') }}
+                        </span>
+
+                        {% if task.due_time %}
+                            <span>
+                                🕐 {{ task.due_time.strftime('%I:%M %p') }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <div class="deadline-actions">
+
+                    <a
+                        href="{{ url_for('tasks.edit_task', task_id=task.id) }}"
+                        class="btn-secondary"
+                    >
+                        Edit
+                    </a>
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('tasks.complete_task', task_id=task.id) }}"
+                    >
+                        <button type="submit" class="btn-success">
+                            Complete
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+        <div class="empty-deadline">
+            <div class="empty-icon">📅</div>
+            <h3>No upcoming deadlines</h3>
+            <p>You don't have any upcoming pending tasks.</p>
+        </div>
+    {% endif %}
+</section>
+
+{% endblock %}
