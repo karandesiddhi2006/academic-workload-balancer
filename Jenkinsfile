@@ -48,11 +48,18 @@ pipeline {
                 }
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t academic-workload-balancer:latest .'
+            }
+        }
     }
 
     post {
         success {
             echo 'CI pipeline completed successfully!'
+            echo 'Python tests passed and Docker image built successfully!'
         }
         failure {
             echo 'CI pipeline failed. Check the console output.'
