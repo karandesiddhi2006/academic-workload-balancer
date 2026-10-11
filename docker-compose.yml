@@ -1,0 +1,11 @@
+services:
+  web:
+    build: .
+    container_name: academic-workload-balancer
+    ports:
+      - "5000:5000"
+    environment:
+      SECRET_KEY: "change-this-to-a-random-secret"
+    volumes:
+      - ./instance:/app/instance
+    restart: unless-stopped
