@@ -37,7 +37,15 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                bat '.venv\\Scripts\\python.exe -m pytest -v'
+                bat '''
+                    if not exist reports mkdir reports
+                    .venv\\Scripts\\python.exe -m pytest -v --junitxml=reports\\pytest-results.xml
+                '''
+            }
+            post {
+                always {
+                    junit 'reports/pytest-results.xml'
+                }
             }
         }
     }
